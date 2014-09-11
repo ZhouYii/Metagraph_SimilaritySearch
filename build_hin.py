@@ -1,7 +1,7 @@
 '''
     Usage : 
-    from build_hin import start 
-    p_a, p_p, p_v, a_p, v_p = start()
+    import build_hin
+    p_a, p_p, p_v, a_p, v_p, a_v = build_hin.start()
 '''
 
 '''
@@ -11,6 +11,11 @@ author_papers = dict()
 paper_papers = dict()
 paper_authors = dict()
 venue_papers = dict()
+
+'''
+    Not a relation in DBLP network but useful for generating matrix
+'''
+author_venues = dict()
 
 '''
     Define the one-to-one relations in network schema
@@ -67,6 +72,7 @@ def start() :
 
         for a in authors :
             dictionary_add_set(author_papers, a, id)
+            dictionary_add_set(author_venues, a, venue)
         dictionary_add_set(venue_papers, venue, id)
 
         paper_venue[id] = venue
@@ -98,4 +104,5 @@ def start() :
            paper_papers, \
            paper_venue, \
            author_papers, \
-           venue_papers
+           venue_papers, \
+           author_venues
