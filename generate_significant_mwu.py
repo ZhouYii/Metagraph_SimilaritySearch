@@ -10,11 +10,8 @@ from nltk import word_tokenize
 '''
     Define the one-to-many relations in network schema
 '''
-id_title = dict()
-id_phrases = dict()
 author_papers = dict()
 paper_papers = dict()
-paper_terms = dict()
 paper_authors = dict()
 venue_papers = dict()
 
@@ -39,13 +36,7 @@ def dictionary_add_set(dictionary, key, value) :
 def start() :
 
     #initialize TFIDF
-    phrase_file = open("text_segmented_by_phrase.txt", "r")
-    for line in phrase_file :
-        index, text = line.split("##")
-        token_list = text.lower().strip().split("!!")
-        id_phrases[index] = token_list
-    phrase_file.close()
-    tfidf = TFIDF(id_phrases.values())
+    tfidf = TFIDF("tfidf_data/name_and_abstracts.txt")
     print("TFIDF initialized")
 
     #input_file = open("publications.txt")
@@ -60,7 +51,9 @@ def start() :
             break
         assert line[:2] == "#*"
         title = line[2:]
-
+        toks = word_tokenize(title)
+        toks = sorted(toks, key=lambda x : tfidf.tf_idf(x), reverse = True)
+        print "sorted toks:"+str(toks)
 
         '''
             Parse author.
@@ -88,7 +81,6 @@ def start() :
         line = input_file.readline().strip()
         assert line[:6] == "#index"
         id = line[6:]
-        id_title[id] = title
 
         for a in authors :
             dictionary_add_set(author_papers, a, id)
@@ -119,19 +111,6 @@ def start() :
         line = input_file.readline()
         if line[:2] == "#!" :
             input_file.readline()
-
-    '''
-        Get terms for each paper.
-    '''
-    phrase_file = open("text_segmented_by_phrase.txt", "r")
-    for pair in id_phrases.items() :
-        '''
-            Assuming (id, list_of_tokens). If I'm wrong, the code will HCF.
-        '''
-        toks = [x for x in pair[1] if len(x) > 2]
-        toks = sorted(toks, key=lambda x : tfidf.tf_idf(x), reverse = False)
-        paper_terms[pair[0]] = toks[: min(3, len(toks))]
-        print "tokens :"+str(paper_terms[pair[0]])
 
     return paper_authors, \
            paper_papers, \
